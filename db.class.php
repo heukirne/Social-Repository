@@ -3,6 +3,7 @@
 class db_class {
 	
 	var $debug=0;
+	var $affected_rows=0;
 
 	function db_class () {
 		 $this->link = mysql_connect("localhost","root","mysql")
@@ -30,16 +31,18 @@ class db_class {
 	function db_execute ($sql) {
 		if ($this->debug) {echo($sql);}
 		mysql_query($sql,$this->link) or die("(db_execute)A query falhou: " . mysql_error());
-		return mysql_insert_id($this->link);
+		$this->affected_rows += mysql_affected_rows($this->link);
+		if (strpos(" ".$sql,"INSERT")>0) return mysql_insert_id($this->link);
+		else return mysql_affected_rows($this->link);
 	}
 
-	function db_insert ($table, $terms) {
-		$ret = $this->db_query("SELECT id FROM $table WHERE " . str_replace(',',' and ',$terms) . ";",1);
+	function db_insert ($table, $terms, $forInsert="") {
+		$ret = $this->db_query("SELECT id FROM $table WHERE " . str_replace(',',' and ',$terms) . " LIMIT 1;",1);
 		if ($ret) {
-			echo "<br> $table id = {$ret->id} ($terms)";
+			if ($this->debug) echo "<br> $table id = {$ret->id} ($terms)";
 			return $ret->id;
 		} else {
-			echo "<br>" . $sql = "INSERT INTO $table SET $terms;";
+			$sql = "INSERT INTO $table SET $terms $forInsert;";
 			return $this->db_execute($sql);
 		}
 	}
