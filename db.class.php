@@ -6,7 +6,7 @@ class db_class {
 	var $affected_rows=0;
 
 	function db_class () {
-		 $this->link = mysql_connect("localhost","root","mysql")
+		 $this->link = mysql_connect("localhost","root","")
 			 or die("Não pude conectar: " . mysql_error());
 		 mysql_select_db("services") or print("(conecta_mysql)Não pude selecionar o banco de dados");	  
 	}
@@ -30,7 +30,9 @@ class db_class {
 	
 	function db_execute ($sql) {
 		if ($this->debug) {echo($sql);}
-		mysql_query($sql,$this->link) or die("(db_execute)A query falhou: " . mysql_error());
+		if (!mysql_query($sql,$this->link)) {
+			throw new Exception("(db_execute)A query falhou: " . mysql_error());
+		}
 		$this->affected_rows += mysql_affected_rows($this->link);
 		if (strpos(" ".$sql,"INSERT")>0) return mysql_insert_id($this->link);
 		else return mysql_affected_rows($this->link);

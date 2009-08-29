@@ -31,7 +31,6 @@
 		}
 		echo "<script>document.title = 'New WSDL: {$db->affected_rows}';</script>";
 		flush();
-		exit;
 	}
 	echo "</pre>";
 	
